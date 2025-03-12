@@ -25,7 +25,11 @@ async def websocket_endpoint(websocket: WebSocket):
         # Update game state
         game.move()
         # Send the updated game state to the front end
-        await websocket.send_text(json.dumps(game.get_state()))
+        await websocket.send_text(json.dumps({
+            "snake": game.snake,
+            "food": game.food,
+            "gameOver": game.game_over
+        }))
         await asyncio.sleep(0.1)  # Adjust the sleep time as needed for game speed
         data = await websocket.receive_text()
         # Process game logic here
