@@ -2,6 +2,9 @@ from fastapi import FastAPI, WebSocket
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 import uvicorn
+from src.functions import SnakeGame
+import json
+import asyncio
 
 app = FastAPI()
 
@@ -17,7 +20,13 @@ async def get():
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
+    game = SnakeGame()  # Initialize the SnakeGame instance
     while True:
+        # Update game state
+        game.move()
+        # Send the updated game state to the front end
+        await websocket.send_text(json.dumps(game.get_state()))
+        await asyncio.sleep(0.1)  # Adjust the sleep time as needed for game speed
         data = await websocket.receive_text()
         # Process game logic here
         await websocket.send_text(f"Message text was: {data}")
